@@ -4,4 +4,6 @@
 
  export TableauUser=username
  export TableauPassword=password
- export TableauServer=<http://serveruri/>
+ export TableauOldServer=<http://serveruri/>
+ export TableauNewServer=<http://serveruri/>
+ export TableauSite=site
