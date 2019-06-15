@@ -17,6 +17,7 @@ def header(msg):
 def getServerInstance(serverUrl, user, pwd, site):
     tableau_auth = TSC.TableauAuth(user, pwd, site)
     server = TSC.Server(serverUrl)
+    # requestOptions = TSC.RequestOptions(pagesize=1000)
     server.add_http_options({'verify': False})
     #sign in
     server.auth.sign_in(tableau_auth)
@@ -35,8 +36,8 @@ class TableauServerData:
 
 def getData(server):
     #all sites
-    allSites, pagination_item = server.sites.get()
-    header("\nThere are {} sites on the server ".format(pagination_item.total_available))
+    allSites = list(TSC.Pager(server.sites))
+    header("\nThere are {} sites on the server ".format(len(allSites)))
     columnsDF = ["SiteId", "SiteName", "SiteContentUrl", "SiteState"]
     allSitesDF = pd.DataFrame(columns=columnsDF)
     for site in allSites:
@@ -45,8 +46,8 @@ def getData(server):
     # print(allSitesDF)
 
     #all users
-    allUsers, pagination_item = server.users.get()
-    print("\nThere are {} users on the server ".format(pagination_item.total_available))
+    allUsers = list(TSC.Pager(server.users))
+    print("\nThere are {} users on the site ".format(len(allUsers)))
     columnsDF = ["UserId", "UserName", "UserEmail", "LastLogin", "SiteRole"]
     allUsersDF = pd.DataFrame(columns=columnsDF)
     for user in allUsers:
@@ -55,8 +56,8 @@ def getData(server):
     # print(allUsersDF)
 
     #all projects
-    allProjects, pagination_item = server.projects.get()
-    print("\nThere are {} projects on the server ".format(pagination_item.total_available))
+    allProjects = list(TSC.Pager(server.projects))
+    print("\nThere are {} projects on the site ".format(len(allProjects)))
     columnsDF = ["ProjectId", "ProjectName", "ProjectDescription", "ProjectContentPermissions", "ProjectParentId"]
     allProjectsDF = pd.DataFrame(columns=columnsDF)
     for project in allProjects:
@@ -65,8 +66,8 @@ def getData(server):
     # print(allProjectsDF)
 
     #all schedules
-    allSchedules, pagination_item = server.schedules.get()
-    print("\nThere are {} schedules on the server".format(pagination_item.total_available))
+    allSchedules = list(TSC.Pager(server.schedules))
+    print("\nThere are {} schedules on the site ".format(len(allSchedules)))
     columnsDF = ["ScheduleId", "ScheduleName", "ScheduleCreatedAt", "ScheduleType", "ScheduleState", "ScheduleNextRun", "ScheduleEndAt"]
     allSchedulesDF = pd.DataFrame(columns=columnsDF)
     for schedule in allSchedules:
@@ -76,31 +77,29 @@ def getData(server):
 
     #views
 
-    allViews, pagination_item = server.views.get(req_options=None, usage=False)
-    print("\nThere are {} views on the server ".format(pagination_item.total_available))
+    allViews = list(TSC.Pager(server.views))
+    print("\nThere are {} views on the site ".format(len(allViews)))
     columnsDF = ["ViewId","ViewName", "ViewContentUrl", "TotalViews", "ViewImage", "ViewPreviewImage", "ViewWorkbookId", "ViewCSV"]
     allViewsDF = pd.DataFrame(columns=columnsDF)
     for view in allViews:
         allViewsDF.loc[len(allViewsDF)] = [view._id, view._name, view._content_url, view._total_views, view._image, view._preview_image, view._workbook_id, view._csv]
 
     #dataSources
-    allDataSources, pagination_item = server.datasources.get(req_options=None)
-    print("\nThere are {} datasources on the server".format(pagination_item.total_available))
+    allDataSources = list(TSC.Pager(server.datasources))
+    print("\nThere are {} datasources on the site ".format(len(allDataSources)))
     columnsDF = ["DataSourceName", "DataSourceProjectId", "DataSourceTags", "DataSourceCertified", "DataSourceContentUrl"]
     allDataSourcesDF = pd.DataFrame(columns=columnsDF)
     for dataSource in allDataSources:
         allDataSourcesDF.loc[len(allDataSourcesDF)] = [dataSource.name, dataSource.project_id, dataSource.tags, dataSource.certified, dataSource._content_url]
 
     #workbooks
-    allWorkbooks, pagination_item = server.workbooks.get(req_options=None)
-    print("\nThere are {} workbooks on the server".format(pagination_item.total_available))
+    allWorkbooks = list(TSC.Pager(server.workbooks))
+    print("\nThere are {} workbooks on the site ".format(len(allWorkbooks)))
     columnsDF = ["WorkbookId","WorkbookName","WorkbookOwnerId", "WorkbookConnections", "WorkbookProjectId"]
     allWorkbooksDF = pd.DataFrame(columns=columnsDF)
     for workbook in allWorkbooks:
         allWorkbooksDF.loc[len(allWorkbooksDF)] = [workbook._id, workbook.name, workbook.owner_id, workbook._connections, workbook.project_id]
         
-
-
     #SaveData
     result = TableauServerData(
                                allSitesDF
